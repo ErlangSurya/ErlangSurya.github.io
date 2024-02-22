@@ -8,6 +8,7 @@ html{
     font-weight: 400;
     font-style: normal;
     color:black;
+    overflow: hidden;
 }
 
 h1{
@@ -80,7 +81,13 @@ h1{
 }
 
 .headercontent{
-    font-size: 50px;
+    font-size: 7vw;
+}
+
+@media screen and (orientation: landscape){
+    .headercontent{
+        font-size:3vw;
+    }
 }
 
 #question{
