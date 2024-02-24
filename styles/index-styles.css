@@ -12,12 +12,31 @@ body{
     align-items: center;
 }
 
+.category{
+    display:flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+h1{
+    text-decoration: underline;
+    margin-top: 5vw;
+}
+
 button{
     font-size: 50px;
     padding: 10px 25px;
     background-color: white;
     box-shadow: 2px 2px black;
     border: solid black;
+    margin-top:1vw;
+}
+
+@media screen and (orientation:portrait){
+    button{
+        font-size: 10vw;
+    }
 }
 
 button:active{
