@@ -1,0 +1,22 @@
+#startScreen{
+    display:none;
+}
+
+#gameContainer{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#grid{
+    display: grid;
+    grid-template-columns: 15vw 15vw 15vw;
+}
+.cell{
+    border : 1px solid black ;
+    background-clip: content-box;
+    background-color: blue;
+    padding: 1vw;
+    aspect-ratio: 1/1;
+}
