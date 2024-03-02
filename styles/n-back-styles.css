@@ -6,7 +6,7 @@ html{
 }
 
 h1{
-    font-size: 6vh;
+    font-size: 10vw;
 }
 
 #startScreen{
@@ -67,7 +67,7 @@ select{
 
 #grid{
     display: grid;
-    grid-template-columns: 15vw 15vw 15vw;
+    grid-template-columns: 20vw 20vw 20vw;
 }
 .cell{
     display: flex;
@@ -114,7 +114,9 @@ select{
 
 
 @media screen and (orientation: landscape){
-
+    h1{
+        font-size:70px;
+    }
     #setting{
         font-size: 5vh;
     }
