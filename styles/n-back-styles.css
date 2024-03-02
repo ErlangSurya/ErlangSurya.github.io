@@ -1,12 +1,68 @@
-#startScreen{
-    display:none;
+html{
+    font-family: "Varela Round", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    overflow: hidden;
 }
 
-#gameContainer{
-    display: flex;
+h1{
+    font-size: 6vh;
+}
+
+#startScreen{
+    display:flex;
+    height: 100vh;
     flex-direction: column;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
+}
+
+select{
+    margin-right: 3vw;
+}
+
+#setting{
+    display:flex;
+    flex-direction: row;
+    width:100vw;
+    justify-content: center;
+    align-items: center;
+    font-size:3vh;
+}
+
+#gameplayScreen{
+    display:none;
+    height: 100vh;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#gamebuttonContainer, #gameoverbuttonContainer{
+    display:flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 15vw;
+    width: 80vw;
+}
+
+.gameButton{
+    font-size: 5vw;
+    background-color: white;
+    box-shadow: 2px 2px black;
+    width:23vw;
+    height:10vw;
+    border: solid black;
+    margin-right: 2vw;
+}
+.gameButton:active{
+    box-shadow: none;
+    transform: translate(2px,2px);
+}
+.gameButton:disabled{
+    transform: translate(2px,2px);
+    box-shadow: none;
+    background-color:rgb(210, 210, 210);
 }
 
 #grid{
@@ -14,9 +70,81 @@
     grid-template-columns: 15vw 15vw 15vw;
 }
 .cell{
+    display: flex;
+    justify-content: center;
+    align-items: center;
     border : 1px solid black ;
     background-clip: content-box;
-    background-color: blue;
+    color:white;
     padding: 1vw;
     aspect-ratio: 1/1;
+    font-size: 6vw;
+}
+
+
+
+
+/* game over stuff */
+
+#gameoverScreen{
+    display:none;
+    height: 100vh;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: black;
+}
+#scoreDetails{
+    font-size:3vh;
+}
+
+
+
+.restartButton,
+.homeButton{
+    font-size: 5vw;
+    background-color: white;
+    box-shadow: 2px 2px black;
+    border: solid black;
+    width:23vw;
+    height:10vw;
+    margin-right: 2vw;
+    margin-left: 2vw;
+}
+
+
+@media screen and (orientation: landscape){
+
+    #setting{
+        font-size: 5vh;
+    }
+    #grid{
+        grid-template-columns: 15vh 15vh 15vh;
+    }
+
+    .cell{
+        font-size: 7vh;
+    }
+
+    #gamebuttonContainer, #gameoverbuttonContainer{
+        margin-top: 10vh;
+
+    }
+
+
+    .gameButton{
+        font-size: 5vh;
+        width:15vw;
+        height:10vh;
+    }
+
+    .restartButton,
+    .homeButton{
+        font-size: 5vh;
+        width:23vh;
+        height:10vh;
+    }
+
+
+    
 }
