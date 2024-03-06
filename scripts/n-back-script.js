@@ -12,13 +12,13 @@ const startButton = document.querySelector('#startButton')
 let gameButtons = document.querySelectorAll('.gameButton');
 const gamebuttonContainer = document.querySelector('#gamebuttonContainer');
 const scoreDisplay = document.querySelector('#scoreDisplay')
+const roundDisplay = document.querySelector('#rounds')
 
-const score_title = document.createElement('h2')
-score_title.textContent = 'SCORE:'
+
 
 let modes = ['position', 'letter']; // always prefix of ['position', 'letter', 'color']
-let N = 1;
-let game_length = 20+N;
+let N;
+let game_length;
 let timeout_clear;
 let timeout_next;
 let answer_keys;
@@ -57,10 +57,10 @@ function generate_game_sequence(N, game_length, number_of_modes){
         }
         for (let i=0; i<game_length-N; i++){
             let r = Math.random();
-            if (r<0.25){
+            if (r<0.3){
                 type_sequence.push('target');
             }
-            else if (r <0.4){
+            else if (r <0.45){
                 type_sequence.push('lure');
             }
             else{
@@ -148,6 +148,7 @@ function gameplay(game_seqs){ //give questions to player, doesn't handle input.
     game_idx = 0 
     next();
     function next(){
+        roundDisplay.textContent = 'Round: '+ (game_idx+1) + '/' +game_length;
         gameButtons.forEach((button) =>{button.disabled=false;});
         if (game_idx<game_length){
             if(modes.length===1){
@@ -160,6 +161,7 @@ function gameplay(game_seqs){ //give questions to player, doesn't handle input.
 
             setTimeout(()=>{
                 game_idx+=1;
+                
                 for (let i=0; i<modes.length;i++){ //if we haven't pressed the button when timer ends, push 'false'
                     if (player_answer[i].length<game_idx){
                         player_answer[i].push(false);
@@ -216,7 +218,7 @@ function game_over(){
             }
         }
         let mode_score = document.createElement('div')
-        mode_score.innerHTML ='<b>'+ modes[i] +'</b>'+ '<br>TP: ' +TP+' FP: ' +FP+' TN: ' +TN+' FN: ' +FN + '<br>IOU = ' + (TP/(TP+FP+FN)).toFixed(3) +'<br>';
+        mode_score.innerHTML ='<b>'+ modes[i] +'</b>'+ '<br>TP: ' +TP+' FP: ' +FP+' TN: ' +TN+' FN: ' +FN + '<br>IOU: ' + (TP/(TP+FP+FN)).toFixed(3) +'<br>';
         total_IOU += TP/(TP+FP+FN);
         mode_score.style.textAlign = 'center'
         scoreDetails.appendChild(mode_score);
@@ -265,7 +267,10 @@ function restart(){
 
 startButton.addEventListener('click',() =>{
     let N_dropdown = document.getElementById("N");
-    N = N_dropdown.options[N_dropdown.selectedIndex].value;
+    N = Number(N_dropdown.options[N_dropdown.selectedIndex].value);
+    game_length = 20 + N;
+
+    roundDisplay.textContent = 'Round: '+ 0 + '/' +game_length;
     let modes_dropdown = document.getElementById("modes");
     let modes_length = modes_dropdown.options[modes_dropdown.selectedIndex].value;
 

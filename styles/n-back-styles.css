@@ -111,6 +111,11 @@ select{
     margin-right: 2vw;
     margin-left: 2vw;
 }
+.restartButton:active,
+.homeButton:active{
+    box-shadow: none;
+    transform: translate(2px,2px);
+}
 
 
 @media screen and (orientation: landscape){
