@@ -16,6 +16,7 @@
         <div id="setting">
         <label for="N">N: </label>
         <select id="N">
+            <option value="2">2</option>
             <option value="3">3</option>
             <option value="4">4</option>
             <option value="5">5</option>
@@ -26,12 +27,22 @@
 
       </div>
     <div id="gameplayScreen">
-        <div id="grid">
+        
+      <div id> 
+        <span class="timerlabel">Memo: </span>
+        <span id="memo"> 00.0</span>
+      </div>
+      <div id> 
+        <span class="timerlabel">Execute: </span>
+        <span id="execute"> 00.0</span>
+      </div>
+        <div> 
+          <span class="timerlabel">Time: </span>
+          <span id="stopwatch"> 00.0</span>
         </div>
-        <div id="gamebuttonContainer">
-        </div>
-  </div>
-  <div id="gameoverScreen">
+        <div id="grid"></div>
+    </div>
+  <!-- <div id="gameoverScreen">
     <h1 id="scoreDisplay">Score:</h1>
     <div id="scoreDetails"></div>
     <div id="gameoverbuttonContainer">
@@ -39,7 +50,7 @@
     <button class="homeButton" onclick="location.href='swaps.html'">Title</button>
     <button class="homeButton" onclick="location.href='index.html'">Home</button>
     </div>
-  </div>  
+  </div>   -->
 
 </body>
 </html>

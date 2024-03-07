@@ -17,16 +17,30 @@ html{
 
 #gameplayScreen{
     display:none;
-    height: 100vh;
+    height: 100vh; 
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
 
+
+.restartButton{
+    background-color: white;
+    box-shadow: 1px 1px black;
+    width:15vw;
+    height:7vw;
+    border: solid black;
+    margin-top: 2vw;
+}
+.restartButton:active{
+    box-shadow: none;
+    transform: translate(1px,1px);
+}
+
+
 #grid{
     display: grid;
-    grid-template-columns: 20vw 20vw 20vw;
 }
 
 
@@ -38,10 +52,25 @@ html{
     background-color: white;
     color:black;
     aspect-ratio: 1/1;
-    font-size: 6vw;
+    font-size: 1em;
+    border-radius: 10%;
 }
+
+.timerlabel {
+    display: inline-block;
+    width: 80px;
+    text-align: right;
+  }
 
 .chosen{ 
     /* For buttons that are currently chosen */
-    border: 3px solid black;
+    border: 2px solid black;
+}
+
+@media screen and (orientation: landscape){
+    .restartButton{
+        width:4vw;
+        height:2vw;
+    }
+
 }
