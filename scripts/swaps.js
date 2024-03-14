@@ -81,7 +81,7 @@ function restart(){
     execute.textContent = '00.0';
     stopwatch.textContent = '00.0';
     const isPortrait = window.matchMedia("(orientation: portrait)").matches;
-    const columnWidth = isPortrait ? `${Math.floor(90/N)}vw` : `${Math.floor(70/N)}vh`;
+    const columnWidth = isPortrait ? `${Math.floor(85/N)}vw` : `${Math.floor(70/N)}vh`;
     grid.style.gridTemplateColumns = `repeat(${N}, ${columnWidth})`;
 
     for (let i = 0; i<N*N; i++){

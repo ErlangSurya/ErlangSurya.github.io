@@ -234,8 +234,8 @@ function restart(){
     gamebuttonContainer.innerHTML='';
     for (const mode of modes){ 
         const button = document.createElement('button');
-        button.innerText=mode;
         button.classList.add('gameButton');
+        button.innerText=mode;
         gamebuttonContainer.appendChild(button)
     }
     gameButtons = document.querySelectorAll('.gameButton');
