@@ -31,6 +31,7 @@ button{
     box-shadow: 2px 2px black;
     border: solid black;
     margin-top:1vw;
+    color: black;
 }
 
 @media screen and (orientation:portrait){

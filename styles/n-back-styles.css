@@ -54,6 +54,8 @@ select{
     height:10vw;
     border: solid black;
     margin-right: 2vw;
+    color: black;
+    text-align: center;
 }
 .gameButton:active{
     box-shadow: none;
@@ -110,6 +112,8 @@ select{
     height:10vw;
     margin-right: 2vw;
     margin-left: 2vw;
+    color: black;
+    text-align: center;
 }
 .restartButton:active,
 .homeButton:active{

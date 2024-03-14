@@ -59,6 +59,8 @@ h1{
     background-color: white;
     box-shadow: 2px 2px black; 
     border: solid black;
+    color: black;
+    text-align: center;
 }
 .restartButton:active{
     box-shadow: none;
@@ -71,6 +73,8 @@ h1{
     background-color: white;
     box-shadow: 2px 2px black; 
     border: solid black;
+    color: black;
+    text-align: center;
 }
 .homeButton:active{
     box-shadow: none;
