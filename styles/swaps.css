@@ -55,8 +55,7 @@ html{
     aspect-ratio: 1/1;
     font-size: 1em;
     border-radius: 10%;
-    margin-right: 2vw;
-    margin-bottom: 2vw;
+    margin: 0 auto;
 }
 
 .timerlabel {

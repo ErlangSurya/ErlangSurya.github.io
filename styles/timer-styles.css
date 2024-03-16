@@ -1,0 +1,50 @@
+html{
+    font-family: "Varela Round", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    overflow: hidden;
+}
+
+#startScreen{
+    display:flex;
+    height: 100vh;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+h1{
+    font-size: 6vw;
+}
+#gameplayScreen{
+    display:none;
+}
+
+#timerScreen{
+    display:none;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    white-space: pre;
+    font-size: 5vw;
+
+}
+
+#fulltimeDisplay{
+    margin-bottom: 5vw;
+}
+
+
+.startButton{
+    font-size: 2vw;
+    padding:0;
+    background-color: white;
+    box-shadow: 2px 2px black;
+    border: solid black;
+    width:12vw;
+    height:4vw;
+    margin-bottom: 2vw;
+    color: black;
+    text-align: center;
+}
