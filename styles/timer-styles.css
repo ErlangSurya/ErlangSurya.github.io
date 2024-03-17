@@ -48,3 +48,7 @@ h1{
     color: black;
     text-align: center;
 }
+.startButton:active{
+    box-shadow: none;
+    transform: translate(2px,2px);
+}
