@@ -118,15 +118,15 @@ h1{
 }
 
 .key{
-    font-size: 50px;
+    font-size: 10vh;
+    width: 15vh;
+    height: 15vh;
     border-radius: 20%;
     background-color: white;
     box-shadow: 2px 2px black;
     border: solid black;
     color: black;
     text-align: center;
-    width: 7vw;
-    height: 7vw;
 }
 
 .key:active{
@@ -151,9 +151,5 @@ h1{
     }
     .headercontent{
         font-size: 7vw;
-    }
-    .key{
-        width: 20vw;
-        height: 20vw;
     }
 }
