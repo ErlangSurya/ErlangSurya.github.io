@@ -6,6 +6,8 @@ const memo =  document.querySelector('#memo');
 const execute =  document.querySelector('#execute');
 const gameplayScreen = document.querySelector('#gameplayScreen');
 
+
+
 let N;
 let chosen =[];
 let intervalStopwatch;
@@ -81,14 +83,17 @@ function restart(){
     execute.textContent = '00.0';
     stopwatch.textContent = '00.0';
     const isPortrait = window.matchMedia("(orientation: portrait)").matches;
-    const columnWidth = isPortrait ? `${Math.floor(85/N)}vw` : `${Math.floor(70/N)}vh`;
+    const columnWidth = isPortrait ? `${Math.floor(90/N)}vw` : `${Math.floor(70/N)}vh`;
     grid.style.gridTemplateColumns = `repeat(${N}, ${columnWidth})`;
+
+
 
     for (let i = 0; i<N*N; i++){
         const newCell = document.createElement('button');
         newCell.classList.add('cell');
         const textsize = isPortrait ? `${Math.floor(50/N)}vw` : `${Math.floor(50/N)}vh`;
-
+        newCell.style.height = columnWidth;
+        newCell.style.width = columnWidth;
         newCell.style.fontSize = textsize;
         newCell.textContent = question[i];
         grid.appendChild(newCell);
