@@ -8,16 +8,17 @@ let sound_duration = bellSound.duration;
 
 const worker = new Worker('scripts/timer.worker.js');
 
-const TOTAL_TIME = 4 * 60 * 60;
-const WORK_TIME = 25 * 60;
-const BREAK_TIME = 5 * 60;
+let TOTAL_TIME;
+let WORK_TIME = 25 * 60;
+let BREAK_TIME = 5 * 60;
 
 // debugging time
 // let TOTAL_TIME = 90;
 // const WORK_TIME = 30;
 // const BREAK_TIME = 30;
 
-const startButton = document.querySelector('.startButton')
+const startButton4 = document.querySelector('#startButton4')
+const startButton2 = document.querySelector('#startButton2')
 
 
 // function formatTime(seconds) {
@@ -85,7 +86,13 @@ worker.onmessage = function(message){
 }
 
 
-startButton.addEventListener('click', () =>{
+startButton2.addEventListener('click', () =>{
+    TOTAL_TIME = 2*60*60;
+    start();
+})
+
+startButton4.addEventListener('click', () =>{
+    TOTAL_TIME = 4*60*60;
     start();
 })
 
