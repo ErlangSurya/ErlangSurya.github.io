@@ -85,6 +85,8 @@ function game_over(){
     document.getElementById('gameOverScreen').style.display = 'flex';
     const cells = document.querySelectorAll('.cell');
     cells.forEach(cell => {cell.disabled =true;});
+    score = 0;
+    current_round = 1;
 }
 
 function restart(){
@@ -92,8 +94,6 @@ function restart(){
     document.getElementById('gameOverScreen').style.display = 'none';
     startScreen.style.display = 'none';
     gameplayScreen.style.display = 'flex';
-    score = 0;
-    current_round = 1;
     answer = [];
     roundText.textContent = current_round+'/'+ROUND_NUMBER;
     scoreText.textContent = score;
