@@ -89,8 +89,11 @@ function game_over(){
 
 function restart(){
     console.log(ROUND_TIME);
+    document.getElementById('gameOverScreen').style.display = 'none';
     startScreen.style.display = 'none';
     gameplayScreen.style.display = 'flex';
+    score = 0;
+    current_round = 1;
     answer = [];
     roundText.textContent = current_round+'/'+ROUND_NUMBER;
     scoreText.textContent = score;
