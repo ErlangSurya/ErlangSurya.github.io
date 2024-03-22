@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="styles/squares-styles.css">
+        <script src="scripts/squares-script.js" type="module"></script>
+        <title>Squares</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Varela+Round&display=swap" rel="stylesheet">
+      </head>
+<body>
+    <div id="startScreen">
+        <h1>Attention: Squares</h1>
+        <div id="setting">
+        <label for="N">N: </label>
+        <select id="N">
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+        </select>
+        <label for="Time">Time: </label>
+        <select id="Time">
+            <option value="4">4</option>
+            <option value="2">2</option>
+            <option value="8">8</option>
+        </select>
+        <button class="restartButton" id="startButton">Start</button>
+      </div>
+
+      </div>
+    <div id="gameplayScreen">
+        <div id="header-container">
+            <div id="header-text">
+                <div id="round-container">
+                    <div>Round:&nbsp; </div>
+                    <div id="round-number"></div>
+                </div>
+                <div id="score-container">
+                    <div>Score:&nbsp; </div>
+                    <div id="score-number"></div>
+                </div>
+                
+            </div>
+            <div id="timer-bar"></div>
+        </div>
+        <div id="game-container">
+            <div id="grid"></div>
+        </div>
+    </div>
+    <div id="gameOverScreen">
+        <h2 id="gameOverMessage">Game Over</h2>
+        <div class="buttonContainer">
+        <button class="restartButton">Restart</button>
+        <button class="homeButton" onclick="location.href='squares.html'">Title</button>
+        <button class="homeButton" onclick="location.href='index.html'">Home</button>
+      </div>
+    </div>
+
+</body>
+</html>

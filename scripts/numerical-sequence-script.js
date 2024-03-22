@@ -46,6 +46,7 @@ function answer_display(answer, game_length){
 
 
 function answering_phase(){
+    timerBar.style.width = '100%';
     buttons.forEach(button => {button.disabled =false;});
     answer = [];
     answer_display(answer,game_length);
