@@ -132,4 +132,7 @@ html{
         width:4vw;
         height:2vw;
     }
+    h1{
+        font-size:70px;
+    }
 }

@@ -2,7 +2,7 @@ html{
     font-family: "Varela Round", sans-serif;
     font-weight: 400;
     font-style: normal;
-    /* overflow: hidden; */
+    overflow: hidden;
 }
 
 
@@ -73,5 +73,8 @@ html{
     .restartButton{
         width:4vw;
         height:2vw;
+    }
+    h1{
+        font-size:70px;
     }
 }
