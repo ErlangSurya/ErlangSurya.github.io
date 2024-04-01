@@ -1,0 +1,55 @@
+html{
+    font-family: "Varela Round", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    overflow: hidden;
+}
+
+
+#startScreen{
+    display:flex;
+    height: 100vh;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+
+#gameplayScreen{
+    display:none;
+    height: 100vh; 
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+
+
+.restartButton{
+    background-color: white;
+    box-shadow: 1px 1px black;
+    width:15vw;
+    height:7vw;
+    border: solid black;
+    margin-top: 2vw;
+    color: black;
+}
+.restartButton:active{
+    box-shadow: none;
+    transform: translate(1px,1px);
+}
+
+
+h1{
+    margin-bottom: 0;
+}
+
+@media screen and (orientation: landscape){
+    .restartButton{
+        width:4vw;
+        height:2vw;
+    }
+    h1{
+        font-size:70px;
+    }
+}
