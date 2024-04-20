@@ -5,6 +5,10 @@ html{
     overflow: hidden; 
 }
 
+body {
+    touch-action: none;
+  }
+
 
 #startScreen{
     display:flex;
