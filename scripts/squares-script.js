@@ -90,7 +90,6 @@ function game_over(){
 }
 
 function restart(){
-    console.log(ROUND_TIME);
     document.getElementById('gameOverScreen').style.display = 'none';
     startScreen.style.display = 'none';
     gameplayScreen.style.display = 'flex';
