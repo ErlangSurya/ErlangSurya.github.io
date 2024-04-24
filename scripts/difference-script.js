@@ -90,4 +90,4 @@ function new_color(color){
     return newColor;
 }
 
-console.log(random_colors(3));
+console.log(random_colors(5));
