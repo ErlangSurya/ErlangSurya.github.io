@@ -18,8 +18,21 @@ const N = 5;
 let question;
 let change_idx;
 
+let current_round = 1;
 
 
+function round_start(){
+    const cells = document.querySelectorAll('.cell');
+    const cellsArray = Array.from(cells);
+    cells.forEach(cell => {
+        cell.disabled = false;
+        cell.addEventListener('click', () =>{
+            const cellIdx = cellsArray.indexOf(cell);
+            answer[cellIdx] = 1;
+        })
+    });
+
+}
 
 function restart(){
     document.getElementById('gameOverScreen').style.display = 'none';
@@ -59,6 +72,9 @@ function restart(){
         }
         grid_modified.appendChild(newCell);
     }
+
+
+    
 }
 
 
