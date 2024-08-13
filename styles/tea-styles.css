@@ -1,0 +1,28 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+#gameplayScreen{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;       
+    width: 100vw; 
+    background-color: rgb(132, 248, 132);
+}
+
+#grid{
+    display: grid;
+}
+
+.farmer {
+    width: 50px;
+    height: 50px;
+    background-color: rgb(20, 81, 186);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
