@@ -28,22 +28,49 @@ class TeaField{
 
 
 class Farmer {
-    constructor(x,y){
+    constructor(x,y,type){
         this.x = x;
         this.y = y;
+        this.type = type; //'random' or 'greedy'
     }
 
     location_update(teaField){
         // For now let's just do random movement
-        let x_update = Math.floor(Math.random()*3)-1;
-        let y_update = Math.floor(Math.random()*3)-1;
-        let new_x = this.x + x_update 
-        let new_y = this.y + y_update 
-        if (new_x >= 0 && new_x<teaField.width){
-            this.x = new_x 
+        if (this.type == 'random'){
+            let x_update = Math.floor(Math.random()*3)-1;
+            let y_update = Math.floor(Math.random()*3)-1;
+            let new_x = this.x + x_update 
+            let new_y = this.y + y_update 
+            if (new_x >= 0 && new_x<teaField.width){
+                this.x = new_x 
+            }
+            if (new_y >= 0 && new_y<teaField.height){
+                this.y = new_y
+            }
         }
-        if (new_y >= 0 && new_y<teaField.height){
-            this.y = new_y
+
+        if (this.type == 'greedy'){
+            
+            let best = 0;
+            let best_x = this.x;
+            let best_y = this.y;
+
+            for (let x_update = -1; x_update<2; x_update++){    
+                for (let y_update = -1; y_update<2; y_update++){
+                    let new_x = this.x + x_update; 
+                    let new_y = this.y + y_update; 
+                    if (new_x >= 0 && new_x<teaField.width && new_y >= 0 && new_y<teaField.height){
+                        if (teaField.tea_array[new_y][new_x]>best){
+                            best_x = new_x;
+                            best_y = new_y;
+                            best = teaField.tea_array[new_y][new_x];
+                        }
+                    }
+                }
+            }
+
+            this.x = best_x 
+            this.y = best_y
         }
     }
 
@@ -54,10 +81,10 @@ class Farmer {
 
 }
 
-const field_size = 30
+const field_size = 40
 const teaField = new TeaField(field_size,field_size)
 
-const farmers = Array.from({ length: field_size }, (_, index) => new Farmer(index, index));
+const farmers = Array.from({ length: field_size }, (_, index) => new Farmer(index, index, 'greedy'));
 
 
 function teaColor(x){
