@@ -6,7 +6,7 @@ class TeaField{
         this.width = width;
         this.height = height;
 
-        this.growth_rate = 0.3;
+        this.growth_rate = 0.1;
 
         let tea_array = new Array(height);
         for (let i = 0; i<width; i++){
@@ -35,8 +35,8 @@ class Farmer {
 
     location_update(teaField){
         // For now let's just do random movement
-        let x_update = Math.random() < 0.5 ? -1 : 1;
-        let y_update = Math.random() < 0.5 ? -1 : 1;
+        let x_update = Math.floor(Math.random()*3)-1;
+        let y_update = Math.floor(Math.random()*3)-1;
         let new_x = this.x + x_update 
         let new_y = this.y + y_update 
         if (new_x >= 0 && new_x<teaField.width){
@@ -47,13 +47,18 @@ class Farmer {
         }
     }
 
+    harvest(teaField){
+        teaField.tea_array[this.y][this.x] = teaField.tea_array[this.y][this.x]/10;
+    }
+
 
 }
 
+const field_size = 30
+const teaField = new TeaField(field_size,field_size)
 
-const teaField = new TeaField(10,10)
+const farmers = Array.from({ length: field_size }, (_, index) => new Farmer(index, index));
 
-const farmers = [new Farmer(1,1), new Farmer(8,8)];
 
 function teaColor(x){
     let darkest = 100;
@@ -69,6 +74,7 @@ function visualizer(teaField, farmers){
     for (let j =0; j<teaField.height; j++){
         for (let i = 0; i<teaField.width; i++){
             const cell = document.createElement('div');
+            cell.className = 'cell';
             //cell.textContent = i 
             //cell.style.border = '1px solid #000';
             //cell.style.backgroundColor = 'lightblue'
@@ -100,14 +106,28 @@ function visualizer(teaField, farmers){
         }
     }
 
+    farmers.forEach(farmer =>{
+        let i = farmer.x;
+        let j = farmer.y;
+        let farmerCell = grid.children[j*teaField.height + i];
+        let circle = document.createElement('div');
+        circle.className = 'farmer';
+        circle.style.width = (farmerCell.offsetWidth)/2 + 'px';
+        circle.style.height = (farmerCell.offsetWidth)/2 + 'px'
+        farmerCell.appendChild(circle);
+    })
+
 }
 
 
 
-let update_time = 1000; // update every x ms
+let update_time = 100; // update every x ms
 visualizer(teaField, farmers);
 setInterval(()=>{
     teaField.tea_growth();
-    farmers.forEach(farmer => farmer.location_update(teaField));
+    farmers.forEach(farmer => {
+        farmer.location_update(teaField);
+        farmer.harvest(teaField);
+    });
     visualizer(teaField, farmers);
 }, update_time);
