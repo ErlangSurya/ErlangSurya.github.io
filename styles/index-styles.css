@@ -26,6 +26,7 @@ h1{
 
 button{
     font-size: 50px;
+    width: 300px;
     padding: 10px 25px;
     background-color: white;
     box-shadow: 2px 2px black;
