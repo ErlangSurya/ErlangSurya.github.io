@@ -162,6 +162,7 @@ function gameplay(game_seqs){ //give questions to player, doesn't handle input.
             setTimeout(()=>{
                 game_idx+=1;
                 
+                
                 for (let i=0; i<modes.length;i++){ //if we haven't pressed the button when timer ends, push 'false'
                     if (player_answer[i].length<game_idx){
                         player_answer[i].push(false);
@@ -172,6 +173,7 @@ function gameplay(game_seqs){ //give questions to player, doesn't handle input.
             
         }
         else{
+            roundDisplay.textContent = 'Round: '+ 1 + '/' +game_length;
             game_over();
         }
     }
@@ -230,6 +232,7 @@ function restart(){
     startScreen.style.display = 'none';
     gameoverScreen.style.display = 'none';
     gameplayScreen.style.display = 'flex';
+    game_idx = 0;
     //generate and setup game buttons
     gamebuttonContainer.innerHTML='';
     for (const mode of modes){ 
@@ -253,6 +256,48 @@ function restart(){
             button.disabled = true;
         })
     })
+
+    document.addEventListener('keydown', (event)=>{
+        const key = event.key.toLowerCase();
+        if (key == 'f'){
+            gameButtons.forEach((button) =>{
+                if(button.textContent==='position'){
+                    if (!button.disabled){
+                        player_answer[0].push(true);
+                        button.disabled = true;
+                    }
+                }
+            })
+        }
+
+        if (key == 'j'){
+            gameButtons.forEach((button) =>{
+                if(button.textContent==='letter'){
+                    if (!button.disabled){
+                        player_answer[0].push(true);
+                        button.disabled = true;
+                    }
+                }
+            })
+        }
+
+        if (key == ' '){
+            gameButtons.forEach((button) =>{
+                if(button.textContent==='color'){
+                    if (!button.disabled){
+                        player_answer[0].push(true);
+                        button.disabled = true;
+                    }
+                }
+            })
+        }
+
+        
+
+
+    })
+
+
 
     game_seqs = generate_game_sequence(N, game_length, modes.length);
     answer_keys = generate_answer_key(game_seqs, N);
