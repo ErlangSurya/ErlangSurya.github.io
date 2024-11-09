@@ -274,7 +274,7 @@ function restart(){
             gameButtons.forEach((button) =>{
                 if(button.textContent==='letter'){
                     if (!button.disabled){
-                        player_answer[0].push(true);
+                        player_answer[1].push(true);
                         button.disabled = true;
                     }
                 }
@@ -285,7 +285,7 @@ function restart(){
             gameButtons.forEach((button) =>{
                 if(button.textContent==='color'){
                     if (!button.disabled){
-                        player_answer[0].push(true);
+                        player_answer[2].push(true);
                         button.disabled = true;
                     }
                 }
