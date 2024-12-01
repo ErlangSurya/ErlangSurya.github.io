@@ -225,7 +225,7 @@ function game_over(){
         mode_score.style.textAlign = 'center'
         scoreDetails.appendChild(mode_score);
     }
-    scoreDisplay.textContent = 'Score:' + Math.round(100*total_IOU/modes.length)
+    scoreDisplay.textContent = 'Score: ' + Math.round(100*total_IOU/modes.length)
 }
 
 function restart(){
