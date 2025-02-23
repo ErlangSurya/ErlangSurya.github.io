@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="stylesheet" href="styles/tower.css">
+        <script src="scripts/tower.js" type="module"></script>
+        <title>Tower</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Varela+Round&display=swap" rel="stylesheet">
+      </head>
+<body>
+    <div id="startScreen">
+        <h1>Tower</h1>
+        <div id="setting">
+        <label for="N">N: </label>
+        <select id="N">
+            <option value="4">4</option>
+            <option value="6">6</option>
+        </select>
+        <label for="Height">Height: </label>
+        <select id="Height">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option selected="selected" value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+        </select>
+        <button class="restartButton" id="startButton">Start</button>
+      </div>
+
+      </div>
+    <div id="gameplayScreen">
+        <div id="timerdiv"> 
+            <span class="timerlabel">Time: </span>
+            <span id="stopwatch"> 00.0</span>
+          </div>
+        <div id="alltowersdiv">
+
+        </div>
+    </div>
+
+
+</body>
+</html>
