@@ -170,6 +170,10 @@ document.addEventListener('keydown', (event)=>{
         }
     }
 
+    if (key == 'r'){
+        restart()
+    }
+
     if (active_tower.length==2){
         towers.move(active_tower[0], active_tower[1]);
         active_tower = new Array(0);
