@@ -45,3 +45,8 @@ button:active{
     box-shadow: none;
     transform: translate(2px,2px);
 }
+
+
+#animation-container {
+    margin-top: 20px; /* Add space above the canvas */
+}
