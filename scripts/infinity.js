@@ -4,8 +4,13 @@ let size = 30;
 let thickness = 0.1;
 
 function setup() {
-    createCanvas(4*size, 4*size);
+    let myCanvas = createCanvas(4*size, 4*size);
     background(265);
+
+    myCanvas.elt.addEventListener('click', function() {
+      // Redirect to the desired URL
+      window.location.href = 'art.html';
+  });
 }
 
 function draw() {
@@ -25,7 +30,7 @@ function draw() {
   endShape();
     
 
-    t += 0.01;
+    t += 0.005;
     if (t>1){
       t = t-1;
     }
