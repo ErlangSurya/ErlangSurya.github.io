@@ -9,13 +9,11 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     background(14,28,46);
 
-    // let lightning_arr = [];
+
 
     let p1 = createVector(width/3 + random()*width/3, 0);
     let p2 = createVector(width/3 + random()*width/3, height*9/10);
     main_branch = lightning(p1,p2,10);
-    // lightning_arr.push(points);
-    console.log(main_branch.length);
 
     branch_arr = []
     idx_arr = []
@@ -27,24 +25,6 @@ function setup() {
         branch_arr.push( lightning(random_p, createVector(random_p.x/3 + 2*width*random()/3, random_p.y + sqrt(random())*(height-random_p.y)),10) );
     }
 
-    // for (let i =0; i<5; i++){
-    //     let random_p = random_element(random_element(lightning_arr));
-    //     lightning_arr.push( lightning(random_p, createVector(random_p.x/3 + 2*width*random()/3, random_p.y + sqrt(random())*(height-random_p.y)),10) );
-    // }
-
-
-    
-    
-    // for (let i=0; i<lightning_arr.length; i++){
-    //     strokeWeight(6*(1-i/lightning_arr.length));
-    //     stroke(122,11,209,100);
-    //     draw_branch(lightning_arr[i]);
-
-
-    //     strokeWeight(1.5*(1-i/lightning_arr.length));
-    //     stroke(230);
-    //     draw_branch(lightning_arr[i]);
-    // }
     
     start_arr = [];
     end_arr = [];
@@ -120,9 +100,6 @@ function lightning(p1,p2,iteration){
     return points
 }
 
-function random_element(points){
-    return points[floor(random()*points.length)]
-}
 
 function draw_branch(points,w1,w2){
     strokeWeight(w1);
