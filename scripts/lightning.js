@@ -1,17 +1,30 @@
+let branch_arr;
+let branch;
+let main_branch;
+let start_arr;
+let idx_arr;
+let end_arr;
+
 function setup() {
     createCanvas(windowWidth, windowHeight);
     background(14,28,46);
 
-    let lightning_arr = [];
+    // let lightning_arr = [];
 
     let p1 = createVector(width/3 + random()*width/3, 0);
     let p2 = createVector(width/3 + random()*width/3, height*9/10);
-    points = lightning(p1,p2,15);
-    lightning_arr.push(points);
+    main_branch = lightning(p1,p2,10);
+    // lightning_arr.push(points);
+    console.log(main_branch.length);
 
-    for (let i =0; i<10; i++){
-        let random_p = random_element(lightning_arr[0]);
-        lightning_arr.push( lightning(random_p, createVector(random_p.x/3 + 2*width*random()/3, random_p.y + sqrt(random())*(height-random_p.y)),10) );
+    branch_arr = []
+    idx_arr = []
+    branch = 10;
+    for (let i =0; i<branch; i++){
+        let r_idx = floor(random()*main_branch.length);
+        idx_arr.push(r_idx);
+        let random_p = main_branch[r_idx];
+        branch_arr.push( lightning(random_p, createVector(random_p.x/3 + 2*width*random()/3, random_p.y + sqrt(random())*(height-random_p.y)),10) );
     }
 
     // for (let i =0; i<5; i++){
@@ -20,23 +33,59 @@ function setup() {
     // }
 
 
+    
+    
+    // for (let i=0; i<lightning_arr.length; i++){
+    //     strokeWeight(6*(1-i/lightning_arr.length));
+    //     stroke(122,11,209,100);
+    //     draw_branch(lightning_arr[i]);
+
+
+    //     strokeWeight(1.5*(1-i/lightning_arr.length));
+    //     stroke(230);
+    //     draw_branch(lightning_arr[i]);
+    // }
+    
+    start_arr = [];
+    end_arr = [];
+
+    for (let i = 0; i<branch; i++){
+        start_arr.push(false);
+        end_arr.push(0);
+    }
+}
+
+let t = 0;
+function draw(){
+    background(14,28,46);
+
     noFill();
     beginShape();
     
-    //stroke(122,11,209);
-    
-    for (let i=0; i<lightning_arr.length; i++){
-        strokeWeight(6*(1-i/lightning_arr.length));
-        stroke(122,11,209,100);
-        draw_branch(lightning_arr[i]);
 
+ 
+    draw_branch(main_branch.slice(0,min(main_branch.length,t+1)),6,1.5);
 
-        strokeWeight(1.5*(1-i/lightning_arr.length));
-        stroke(230);
-        draw_branch(lightning_arr[i]);
+    for (let j=0; j<branch; j++){
+        if (idx_arr[j]<=t){
+            start_arr[j] = true;
+        }
+        if (start_arr[j]==true){
+            end_arr[j] += 100;
+            draw_branch(branch_arr[j].slice(0,min(branch_arr[j].length,end_arr[j])), 6*(1-j/branch), 1.5*(1-j/branch));
+        }
     }
-    
+    t += 100;
+    // console.log(t);
+
     endShape();
+
+    if (t>30000){
+        setup();
+        t=0;
+    }
+
+
 }
 
 
@@ -75,8 +124,16 @@ function random_element(points){
     return points[floor(random()*points.length)]
 }
 
-function draw_branch(points){
+function draw_branch(points,w1,w2){
+    strokeWeight(w1);
+    stroke(122,11,209,100);
     for (let i = 0; i < points.length-1; i++)  { 
         line(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
       }
+    strokeWeight(w2);
+    stroke(230);
+    for (let i = 0; i < points.length-1; i++)  { 
+        line(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
+      }
+
 }
