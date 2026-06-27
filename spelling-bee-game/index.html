@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spelling Bee</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🐝 Spelling Bee</h1>
+
+    <!-- LOBBY: Host setup -->
+    <div id="setup-ui" class="panel lobby-setup hidden">
+      <h2>Host a Game</h2>
+      <label>Your Name</label>
+      <input type="text" id="host-name" placeholder="e.g. Mr. Feeny" value="Host">
+      <label>Total Players (including you)</label>
+      <select id="player-count">
+        <option value="2">2 Players</option>
+        <option value="3" selected>3 Players</option>
+        <option value="4">4 Players</option>
+        <option value="5">5 Players</option>
+      </select>
+      <button id="btn-start-hosting">Start Hosting</button>
+    </div>
+
+    <!-- LOBBY: Host switchboard -->
+    <div id="host-ui" class="panel hidden">
+      <h2>Host Switchboard</h2>
+      <p class="muted" style="margin-bottom:15px;">
+        For each player: generate a link, send it to them, then paste back the
+        answer they give you and click Connect.
+      </p>
+      <div id="connection-panels"></div>
+      <div id="host-status"></div>
+      <button id="btn-start-game" class="hidden">Start Game</button>
+    </div>
+
+    <!-- LOBBY: Joiner -->
+    <div id="joiner-ui" class="panel joiner-section hidden">
+      <h2 id="joiner-title">Joining Game...</h2>
+      <label>Your Name (set this first!)</label>
+      <input type="text" id="joiner-name" placeholder="e.g. Topanga">
+      <p class="muted" style="margin-top:10px;">Your answer code (generating...):</p>
+      <textarea id="answer-out" rows="4" readonly></textarea>
+      <p><strong>Copy this and send it back to the Host.</strong></p>
+      <p id="joiner-status" class="muted"></p>
+    </div>
+
+    <!-- GAME VIEW -->
+    <div id="game-ui" class="hidden">
+      <div class="scoreboard" id="scoreboard"></div>
+
+      <div class="panel word-area">
+        <div id="turn-indicator" class="waiting">Waiting for the game to start...</div>
+        <div id="word-content" class="hidden">
+          <div class="audio-controls">
+            <button id="btn-play-audio">🔊 Play Word</button>
+          </div>
+          <audio id="audio-player"></audio>
+          <div id="word-content-inner"></div>
+        </div>
+      </div>
+
+      <div id="spell-section" class="hidden">
+        <div class="spell-input">
+          <input type="text" id="spell-input" placeholder="Type your spelling..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <button id="btn-submit">Submit</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Results</h3>
+        <div class="results-feed" id="results-feed"></div>
+      </div>
+
+      <div id="game-over-section" class="panel game-over hidden">
+        <h2>Game Over!</h2>
+        <div class="winner-name" id="winner-name"></div>
+        <button id="btn-restart" class="hidden">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="dictionary.js"></script>
+  <script src="webrtc.js"></script>
+  <script src="game.js"></script>
+  <script>
+    // ===== Determine role from URL =====
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlOffer = urlParams.get('offer');
+    const urlPlayerId = urlParams.get('player');
+
+    const amHost = !(urlOffer && urlPlayerId && urlPlayerId !== '1');
+    const myPlayerId = amHost ? '1' : String(urlPlayerId);
+
+    let myName = '';
+    let rtc = null;
+
+    // ============================================================
+    // JOINER
+    // ============================================================
+    if (!amHost) {
+      const joinerNameInput = document.getElementById('joiner-name');
+      document.getElementById('joiner-ui').classList.remove('hidden');
+      document.getElementById('joiner-title').textContent = `Joining as Player ${myPlayerId}`;
+      myName = `Player ${myPlayerId}`;
+      joinerNameInput.value = '';
+
+      Game.init({
+        isHost: false,
+        sendToHost: (msg) => rtc && rtc.sendToHost(msg),
+        onStateChange: renderState,
+        onRoundStart: renderRoundStart,
+        onRoundResult: renderRoundResult,
+        onGameOver: renderGameOver
+      });
+
+      WebRTC.initializeAsJoiner(urlOffer, handleGameMessage).then(conn => {
+        rtc = conn;
+        rtc.setName(myName);
+        document.getElementById('answer-out').value = conn.answerBase64;
+      });
+
+      joinerNameInput.addEventListener('input', () => {
+        myName = joinerNameInput.value.trim() || `Player ${myPlayerId}`;
+        if (rtc) rtc.setName(myName);
+      });
+
+    // ============================================================
+    // HOST
+    // ============================================================
+    } else {
+      document.getElementById('setup-ui').classList.remove('hidden');
+
+      Game.init({
+        isHost: true,
+        broadcast: (msg) => rtc && rtc.broadcast(msg),
+        onStateChange: renderState,
+        onRoundStart: renderRoundStart,
+        onRoundResult: renderRoundResult,
+        onGameOver: renderGameOver
+      });
+      Game.loadWords();
+
+      document.getElementById('btn-start-hosting').addEventListener('click', () => {
+        myName = document.getElementById('host-name').value.trim() || 'Host';
+        const count = parseInt(document.getElementById('player-count').value, 10);
+
+        document.getElementById('setup-ui').classList.add('hidden');
+        document.getElementById('host-ui').classList.remove('hidden');
+
+        rtc = WebRTC.initializeAsHost(count, handleGameMessage);
+        rtc.setHostName(myName);
+
+        const container = document.getElementById('connection-panels');
+        rtc.panelPlayerIds.forEach(pid => {
+          const div = document.createElement('div');
+          div.className = 'player-panel';
+          div.id = `panel-${pid}`;
+          div.innerHTML = `
+            <h3 id="panel-title-${pid}">Player ${pid}</h3>
+            <div class="row">
+              <button onclick="genLink('${pid}')">1. Generate Link</button>
+            </div>
+            <input type="text" id="link-out-${pid}" readonly placeholder="Link appears here — send it to the player">
+            <textarea id="answer-in-${pid}" rows="2" placeholder="2. Paste the player's answer code here"></textarea>
+            <button onclick="connectPlayer('${pid}')">3. Connect</button>
+            <div class="status" id="status-${pid}">Not connected</div>`;
+          container.appendChild(div);
+        });
+
+        updateHostStatus();
+      });
+
+      document.getElementById('btn-start-game').addEventListener('click', () => {
+        const names = WebRTC.getPlayerNames();
+        const connected = WebRTC.getConnectedPlayerIds();
+        const players = [{ id: '1', name: names['1'] || 'Host' }]
+          .concat(connected.map(id => ({ id, name: names[id] })))
+          .sort((a, b) => parseInt(a.id, 10) - parseInt(b.id, 10));
+
+        Game.setPlayers(players);
+        showGameUI();
+        Game.startGame();
+      });
+    }
+
+    // ===== Host switchboard helpers (global for inline onclick) =====
+    async function genLink(pid) {
+      const btn = document.querySelector(`#panel-${pid} button`);
+      btn.disabled = true; btn.textContent = 'Generating...';
+      const b64Offer = await WebRTC_generateLink(pid);
+      const base = window.location.href.split('?')[0];
+      document.getElementById(`link-out-${pid}`).value = `${base}?player=${pid}&offer=${b64Offer}`;
+      btn.disabled = false; btn.textContent = '1. Generate Link';
+      document.getElementById(`link-out-${pid}`).select();
+    }
+    async function connectPlayer(pid) {
+      const b64 = document.getElementById(`answer-in-${pid}`).value.trim();
+      if (!b64) return;
+      try {
+        await WebRTC_acceptAnswer(pid, b64);
+        document.getElementById(`answer-in-${pid}`).value = '';
+        document.getElementById(`status-${pid}`).textContent = 'Connecting...';
+      } catch (e) {
+        document.getElementById(`status-${pid}`).textContent = 'Invalid answer code — try again.';
+      }
+    }
+    // rtc object is created lazily; wrap so inline handlers resolve at call time.
+    function WebRTC_generateLink(pid) { return rtc.generateLink(pid); }
+    function WebRTC_acceptAnswer(pid, b64) { return rtc.acceptAnswer(pid, b64); }
+
+    function updateHostStatus() {
+      const total = Object.keys(WebRTC.getPlayerNames()).length; // configured
+      const connected = WebRTC.getConnectedPlayerIds().length;
+      document.getElementById('host-status').textContent =
+        `${connected + 1} / ${total} players connected`;
+      // Allow starting once at least one other player is connected.
+      document.getElementById('btn-start-game').classList.toggle('hidden', connected < 1);
+    }
+
+    // ===== Message routing =====
+    function handleGameMessage(data, fromPlayerId) {
+      switch (data.type) {
+        case '_channel_open':
+          if (amHost) updateHostStatus();
+          return;
+        case '_player_joined': {
+          const el = document.getElementById(`panel-title-${data.playerId}`);
+          if (el) el.textContent = data.name;
+          const st = document.getElementById(`status-${data.playerId}`);
+          if (st) st.textContent = 'Connected ✓';
+          const panel = document.getElementById(`panel-${data.playerId}`);
+          if (panel) panel.classList.add('connected');
+          updateHostStatus();
+          return;
+        }
+        case '_player_left': {
+          const st = document.getElementById(`status-${data.playerId}`);
+          if (st) st.textContent = 'Disconnected';
+          if (amHost) updateHostStatus();
+          return;
+        }
+        case '_connected':
+          document.getElementById('joiner-status').textContent =
+            'Connected! Waiting for the host to start the game...';
+          return;
+        case 'submit_attempt':
+          if (amHost) Game.handleSubmission(fromPlayerId, data.attempt);
+          return;
+        default:
+          if (!amHost) Game.handleMessage(data);
+      }
+    }
+
+    // ===== View switching =====
+    function showGameUI() {
+      ['setup-ui', 'host-ui', 'joiner-ui'].forEach(id =>
+        document.getElementById(id).classList.add('hidden'));
+      document.getElementById('game-ui').classList.remove('hidden');
+    }
+
+    // ===== Rendering =====
+    function renderScoreboard() {
+      const players = Game.getAllPlayers();
+      const activeId = Game.getActiveId();
+      document.getElementById('scoreboard').innerHTML = players.map(p => {
+        const alive = Game.isPlayerAlive(p.id);
+        const cls = ['player-chip', alive ? 'alive' : 'eliminated',
+          (activeId === p.id && alive) ? 'active-turn' : ''].join(' ');
+        const you = p.id === myPlayerId ? ' (you)' : '';
+        return `<div class="${cls}">${p.name}${you}</div>`;
+      }).join('');
+    }
+
+    function renderState(state) {
+      if (state === 'PLAYING') {
+        showGameUI();
+        document.getElementById('game-over-section').classList.add('hidden');
+        document.getElementById('word-content').classList.add('hidden');
+        document.getElementById('spell-section').classList.add('hidden');
+        document.getElementById('results-feed').innerHTML = '';
+        document.getElementById('turn-indicator').textContent = 'Get ready...';
+        document.getElementById('turn-indicator').className = 'waiting';
+      }
+      renderScoreboard();
+    }
+
+    function renderRoundStart(data) {
+      showGameUI();
+      document.getElementById('game-over-section').classList.add('hidden');
+      renderScoreboard();
+
+      const isMyTurn = String(data.activePlayerId) === myPlayerId;
+      const indicator = document.getElementById('turn-indicator');
+      indicator.className = '';
+      indicator.textContent = isMyTurn ? "Your turn — spell the word!" : `${data.activePlayerName}'s turn`;
+
+      // Definitions (word + phonetics are hidden by design).
+      const inner = data.wordData.meanings.map(m => {
+        const defs = m.definitions.map(d => `<li>${d}</li>`).join('');
+        return `<div class="meaning"><strong>${m.partOfSpeech}</strong><ol>${defs}</ol></div>`;
+      }).join('');
+      document.getElementById('word-content-inner').innerHTML = inner;
+      document.getElementById('word-content').classList.remove('hidden');
+
+      // Audio: load + attempt autoplay; the Play button is the reliable path.
+      const audio = document.getElementById('audio-player');
+      const playBtn = document.getElementById('btn-play-audio');
+      if (data.wordData.audioUrl) {
+        audio.src = data.wordData.audioUrl;
+        playBtn.style.display = '';
+        audio.play().catch(() => {});
+      } else {
+        audio.removeAttribute('src');
+        playBtn.style.display = 'none';
+      }
+
+      // Spell input — only for the active player.
+      const section = document.getElementById('spell-section');
+      const input = document.getElementById('spell-input');
+      const submit = document.getElementById('btn-submit');
+      if (isMyTurn) {
+        section.classList.remove('hidden');
+        input.value = '';
+        input.disabled = false;
+        submit.disabled = false;
+        input.focus();
+      } else {
+        section.classList.add('hidden');
+      }
+    }
+
+    function renderRoundResult(result) {
+      const feed = document.getElementById('results-feed');
+      const cls = result.correct ? 'correct' : 'wrong';
+      const icon = result.correct ? '✓' : '✗';
+      const item = document.createElement('div');
+      item.className = `result-item ${cls}`;
+      item.innerHTML = `<strong>${result.playerName}</strong> spelled: ${result.attempt} ${icon}`;
+      feed.appendChild(item);
+      if (!result.correct) {
+        const reveal = document.createElement('div');
+        reveal.className = 'result-item wrong reveal';
+        reveal.textContent = `The word was: ${result.actualWord}`;
+        feed.appendChild(reveal);
+      }
+      feed.scrollTop = feed.scrollHeight;
+
+      document.getElementById('spell-section').classList.add('hidden');
+      renderScoreboard();
+    }
+
+    function renderGameOver(data) {
+      showGameUI();
+      document.getElementById('spell-section').classList.add('hidden');
+      document.getElementById('word-content').classList.add('hidden');
+      document.getElementById('turn-indicator').className = 'waiting';
+      document.getElementById('turn-indicator').textContent = '';
+      renderScoreboard();
+
+      document.getElementById('game-over-section').classList.remove('hidden');
+      document.getElementById('winner-name').textContent = `🏆 ${data.winnerName} wins!`;
+      if (amHost) document.getElementById('btn-restart').classList.remove('hidden');
+    }
+
+    // ===== Game input events =====
+    document.getElementById('btn-submit').addEventListener('click', () => {
+      const input = document.getElementById('spell-input');
+      const attempt = input.value.trim();
+      if (!attempt) return;
+      input.disabled = true;
+      document.getElementById('btn-submit').disabled = true;
+      Game.submitAttempt(attempt);
+      input.value = '';
+    });
+    document.getElementById('spell-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') document.getElementById('btn-submit').click();
+    });
+    document.getElementById('btn-play-audio').addEventListener('click', () => {
+      const audio = document.getElementById('audio-player');
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    });
+    document.getElementById('btn-restart').addEventListener('click', () => {
+      document.getElementById('game-over-section').classList.add('hidden');
+      document.getElementById('results-feed').innerHTML = '';
+      Game.restart();
+    });
+  </script>
+</body>
+</html>
