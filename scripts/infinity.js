@@ -9,7 +9,7 @@ function setup() {
 
     myCanvas.elt.addEventListener('click', function() {
       // Redirect to the desired URL
-      window.location.href = 'art.html';
+      window.location.href = './tools/';
   });
 }
 

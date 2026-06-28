@@ -6,7 +6,7 @@ const roundtimeDisplay = document.querySelector('#roundtimeDisplay');
 let bellSound = document.getElementById("bell");
 let sound_duration = bellSound.duration;
 
-const worker = new Worker('scripts/timer.worker.js');
+const worker = new Worker('./timer.worker.js');
 
 let TOTAL_TIME;
 let WORK_TIME = 25 * 60;
