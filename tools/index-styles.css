@@ -1,52 +1,63 @@
-html{
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
     font-family: "Varela Round", sans-serif;
     font-weight: 400;
     font-style: normal;
 }
-body{
+
+body {
     width: 100%;
     height: 100%;
-    display:flex;
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-.category{
-    display:flex;
+.category {
+    display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
 }
 
-h1{
+h1 {
     text-decoration: underline;
     margin-top: 5vw;
 }
 
-button{
-    font-size: 50px;
-    width: 300px;
-    padding: 10px 25px;
-    background-color: white;
+button {
+    font-family: "Varela Round", sans-serif;
+    font-size: 1rem;
+    padding: 10px 22px;
+    cursor: pointer;
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 6px;
     box-shadow: 2px 2px black;
-    border: solid black;
-    margin-top:1vw;
-    color: black;
+    margin-top: 1vw;
 }
 
-@media screen and (orientation:portrait){
-    button{
-        font-size: 10vw;
-    }
-}
-
-button:active{
+button:active {
     box-shadow: none;
-    transform: translate(2px,2px);
+    transform: translate(2px, 2px);
 }
 
+button:disabled {
+    color: #999;
+    border-color: #999;
+    box-shadow: none;
+    cursor: not-allowed;
+}
 
 #animation-container {
-    margin-top: 20px; /* Add space above the canvas */
+    margin-top: 20px;
+}
+
+@media screen and (orientation: portrait) {
+    button {
+        font-size: 10vw;
+    }
 }

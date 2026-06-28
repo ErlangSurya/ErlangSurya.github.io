@@ -1,55 +1,102 @@
-html{
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
     font-family: "Varela Round", sans-serif;
     font-weight: 400;
     font-style: normal;
     overflow: hidden;
 }
 
-
-#startScreen{
-    display:flex;
+#startScreen {
+    display: flex;
     height: 100vh;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
+#setting {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    justify-content: center;
+    align-items: center;
+    font-size: 3vh;
+    gap: 1vw;
+    margin-top: 20px;
+}
 
-#gameplayScreen{
-    display:none;
-    height: 100vh; 
+#setting label {
+    font-weight: bold;
+}
+
+#setting select {
+    padding: 10px;
+    font-size: 1rem;
+    font-family: "Varela Round", sans-serif;
+    border: 2px solid #000;
+    border-radius: 6px;
+    background: #fff;
+    color: #000;
+}
+
+#setting button {
+    font-family: "Varela Round", sans-serif;
+    font-size: 1rem;
+    padding: 10px 22px;
+    cursor: pointer;
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 6px;
+    box-shadow: 2px 2px black;
+}
+
+#setting button:active {
+    box-shadow: none;
+    transform: translate(2px, 2px);
+}
+
+#gameplayScreen {
+    display: none;
+    height: 100vh;
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
 }
 
-
-
-.restartButton{
-    background-color: white;
-    box-shadow: 1px 1px black;
-    width:15vw;
-    height:7vw;
-    border: solid black;
-    margin-top: 2vw;
-    color: black;
+.restartButton {
+    font-family: "Varela Round", sans-serif;
+    font-size: 1rem;
+    padding: 10px 22px;
+    cursor: pointer;
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 6px;
+    box-shadow: 2px 2px black;
+    text-align: center;
 }
-.restartButton:active{
+
+.restartButton:active {
     box-shadow: none;
-    transform: translate(1px,1px);
+    transform: translate(2px, 2px);
 }
 
-
-h1{
-    margin-bottom: 0;
+.restartButton:disabled {
+    color: #999;
+    border-color: #999;
+    box-shadow: none;
+    cursor: not-allowed;
 }
 
-@media screen and (orientation: landscape){
-    .restartButton{
-        width:4vw;
-        height:2vw;
-    }
-    h1{
-        font-size:70px;
+h1 {
+    margin-bottom: 24px;
+    text-decoration: underline;
+}
+
+@media screen and (orientation: landscape) {
+    h1 {
+        font-size: 70px;
     }
 }

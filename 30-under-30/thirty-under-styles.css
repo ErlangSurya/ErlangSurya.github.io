@@ -1,40 +1,42 @@
-html{
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
     font-family: "Varela Round", sans-serif;
     font-weight: 400;
     font-style: normal;
-    color:black;
+    color: black;
     overflow: hidden;
 }
 
-h1{
-    font-size:70px;
-    margin-bottom: 0;
+h1 {
+    font-size: 70px;
+    margin-bottom: 24px;
+    text-decoration: underline;
 }
 
-#startScreen{
-    display:flex; 
+#startScreen {
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    position:fixed;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgb(255, 255, 255);
+    background-color: #fff;
     z-index: 999;
     text-align: center;
     color: black;
     font-size: 24px;
 }
 
-
-#gameOverScreen{
-    display:none; 
+#gameOverScreen {
+    display: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    position:fixed;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -46,111 +48,108 @@ h1{
     font-size: 24px;
 }
 
-
-
-.buttonContainer{
-    display:flex;
+.buttonContainer {
+    display: flex;
     flex-direction: column;
-}
-.restartButton{
-    font-size: 50px;
-    padding: 10px 15px;
-    border-radius: 0%;
-    background-color: white;
-    box-shadow: 2px 2px black; 
-    border: solid black;
-    color: black;
-    text-align: center;
-    margin-top: 5px;
-    margin-bottom: 5px;
-}
-.restartButton:active{
-    box-shadow: none;
-    transform: translate(2px,2px);
-}
-.homeButton{
-    font-size: 50px;
-    padding: 10px 15px;
-    border-radius: 0%;
-    background-color: white;
-    box-shadow: 2px 2px black; 
-    border: solid black;
-    color: black;
-    text-align: center;
-}
-.homeButton:active{
-    box-shadow: none;
-    transform: translate(2px,2px);
+    gap: 10px;
 }
 
-#header-container{
-    display: flex; 
-    align-items: center; 
-    justify-content: space-around;
-    height:10vh;
+.restartButton, .homeButton {
+    font-family: "Varela Round", sans-serif;
+    font-size: 1rem;
+    padding: 10px 22px;
+    cursor: pointer;
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 6px;
+    box-shadow: 2px 2px black;
+    text-align: center;
 }
-#main-container{
+
+.restartButton:active, .homeButton:active {
+    box-shadow: none;
+    transform: translate(2px, 2px);
+}
+
+.restartButton:disabled, .homeButton:disabled {
+    color: #999;
+    border-color: #999;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+#header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 10vh;
+}
+
+#main-container {
     height: 90vh;
-    display: flex; 
-    align-items: center; 
+    display: flex;
+    align-items: center;
     justify-content: center;
     flex-direction: column;
 }
 
-.headercontent{
+.headercontent {
     font-size: 3vw;
 }
 
-
-#question{
+#question {
     justify-content: center;
     align-items: center;
     text-align: center;
-    font-size:100px;
+    font-size: 100px;
     margin-bottom: 3%;
 }
 
-
-.keyrow{
-    display:flex;
+.keyrow {
+    display: flex;
     flex-direction: row;
     justify-content: space-around;
 }
 
-.key{
+.key {
+    font-family: "Varela Round", sans-serif;
     padding: 0;
     font-size: 10vh;
     width: 15vh;
     height: 15vh;
-    border-radius: 20%;
+    border-radius: 6px;
     background-color: white;
     box-shadow: 2px 2px black;
-    border: solid black;
+    border: 2px solid #000;
     color: black;
     text-align: center;
+    cursor: pointer;
 }
 
-.key:active{
+.key:active {
     box-shadow: none;
-    transform: translate(2px,2px);
-}
-.key:disabled{
-    color:black;
+    transform: translate(2px, 2px);
 }
 
+.key:disabled {
+    color: #999;
+    border-color: #999;
+    box-shadow: none;
+    cursor: not-allowed;
+}
 
-
-@media screen and (orientation: portrait){
-    #startScreen{
+@media screen and (orientation: portrait) {
+    #startScreen {
         font-size: 5vw;
     }
-    h1{
+    h1 {
         font-size: 10vw;
     }
-    #question{
+    #question {
         font-size: 14vw;
     }
-    .headercontent{
+    .headercontent {
         font-size: 7vw;
     }
 }

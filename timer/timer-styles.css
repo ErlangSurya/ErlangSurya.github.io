@@ -1,54 +1,71 @@
-html{
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
     font-family: "Varela Round", sans-serif;
     font-weight: 400;
     font-style: normal;
     overflow: hidden;
 }
 
-#startScreen{
-    display:flex;
+#startScreen {
+    display: flex;
     height: 100vh;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-h1{
+h1 {
     font-size: 6vw;
-}
-#gameplayScreen{
-    display:none;
+    margin-bottom: 24px;
+    text-decoration: underline;
 }
 
-#timerScreen{
-    display:none;
+.buttonContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.startButton {
+    font-family: "Varela Round", sans-serif;
+    font-size: 1rem;
+    padding: 10px 22px;
+    cursor: pointer;
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 6px;
+    box-shadow: 2px 2px black;
+    text-align: center;
+}
+
+.startButton:active {
+    box-shadow: none;
+    transform: translate(2px, 2px);
+}
+
+.startButton:disabled {
+    color: #999;
+    border-color: #999;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+#gameplayScreen {
+    display: none;
+}
+
+#timerScreen {
+    display: none;
     height: 100vh;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     white-space: pre;
     font-size: 5vw;
-
 }
 
-#fulltimeDisplay{
+#fulltimeDisplay {
     margin-bottom: 5vw;
-}
-
-
-.startButton{
-    font-size: 2vw;
-    padding:0;
-    background-color: white;
-    box-shadow: 2px 2px black;
-    border: solid black;
-    width:12vw;
-    height:4vw;
-    margin-bottom: 2vw;
-    color: black;
-    text-align: center;
-}
-.startButton:active{
-    box-shadow: none;
-    transform: translate(2px,2px);
 }
