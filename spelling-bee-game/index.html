@@ -4,11 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spelling Bee</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <h1>🐝 Spelling Bee</h1>
+    <h1>Spelling Bee</h1>
 
     <!-- LOBBY: Host setup -->
     <div id="setup-ui" class="panel lobby-setup hidden">
@@ -22,6 +25,15 @@
         <option value="4">4 Players</option>
         <option value="5">5 Players</option>
       </select>
+      <label>Word Pack</label>
+      <select id="word-pack">
+        <option value="words_cwl.json" selected>words_cwl.json (default)</option>
+        <option value="words.json">words.json</option>
+        <option value="words_cfar.json">words_cfar.json</option>
+      </select>
+      <label class="checkbox-label">
+        <input type="checkbox" id="show-difficulty"> Show difficulty level to players
+      </label>
       <button id="btn-start-hosting">Start Hosting</button>
     </div>
 
@@ -54,9 +66,11 @@
 
       <div class="panel word-area">
         <div id="turn-indicator" class="waiting">Waiting for the game to start...</div>
+        <div id="difficulty-label" class="hidden"></div>
         <div id="word-content" class="hidden">
           <div class="audio-controls">
-            <button id="btn-play-audio">🔊 Play Word</button>
+            <button id="btn-play-human" class="hidden">Play Recording</button>
+            <button id="btn-play-tts" class="hidden">Play Synthesized</button>
           </div>
           <audio id="audio-player"></audio>
           <div id="word-content-inner"></div>
@@ -97,6 +111,27 @@
 
     let myName = '';
     let rtc = null;
+    let currentAudioUrl = null;  // human recording URL for this round (or null)
+    let currentWordText = null;  // text spoken via speech synthesis this round
+
+    // Browser speech synthesis (always available pronunciation path).
+    function speakWord(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'en-US';
+      u.rate = 0.85;
+      window.speechSynthesis.speak(u);
+    }
+
+    // Stop any playing audio and clear the round's audio state.
+    function stopAudio() {
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      const a = document.getElementById('audio-player');
+      if (a) { a.pause(); a.removeAttribute('src'); }
+      currentAudioUrl = null;
+      currentWordText = null;
+    }
 
     // ============================================================
     // JOINER
@@ -142,11 +177,13 @@
         onRoundResult: renderRoundResult,
         onGameOver: renderGameOver
       });
-      Game.loadWords();
 
       document.getElementById('btn-start-hosting').addEventListener('click', () => {
         myName = document.getElementById('host-name').value.trim() || 'Host';
         const count = parseInt(document.getElementById('player-count').value, 10);
+        Game.setWordPack(document.getElementById('word-pack').value);
+        Game.setShowDifficulty(document.getElementById('show-difficulty').checked);
+        Game.loadWords(); // preload the chosen pack while players connect
 
         document.getElementById('setup-ui').classList.add('hidden');
         document.getElementById('host-ui').classList.remove('hidden');
@@ -231,7 +268,7 @@
           const el = document.getElementById(`panel-title-${data.playerId}`);
           if (el) el.textContent = data.name;
           const st = document.getElementById(`status-${data.playerId}`);
-          if (st) st.textContent = 'Connected ✓';
+          if (st) st.textContent = 'Connected';
           const panel = document.getElementById(`panel-${data.playerId}`);
           if (panel) panel.classList.add('connected');
           updateHostStatus();
@@ -278,8 +315,10 @@
     function renderState(state) {
       if (state === 'PLAYING') {
         showGameUI();
+        stopAudio();
         document.getElementById('game-over-section').classList.add('hidden');
         document.getElementById('word-content').classList.add('hidden');
+        document.getElementById('difficulty-label').classList.add('hidden');
         document.getElementById('spell-section').classList.add('hidden');
         document.getElementById('results-feed').innerHTML = '';
         document.getElementById('turn-indicator').textContent = 'Get ready...';
@@ -298,6 +337,16 @@
       indicator.className = '';
       indicator.textContent = isMyTurn ? "Your turn — spell the word!" : `${data.activePlayerName}'s turn`;
 
+      // Difficulty label (only if the host enabled it).
+      const diffLabel = document.getElementById('difficulty-label');
+      if (Game.getShowDifficulty() && data.difficulty) {
+        const d = data.difficulty;
+        diffLabel.textContent = `Difficulty: ${d.charAt(0).toUpperCase() + d.slice(1)}`;
+        diffLabel.classList.remove('hidden');
+      } else {
+        diffLabel.classList.add('hidden');
+      }
+
       // Definitions (word + phonetics are hidden by design).
       const inner = data.wordData.meanings.map(m => {
         const defs = m.definitions.map(d => `<li>${d}</li>`).join('');
@@ -306,16 +355,31 @@
       document.getElementById('word-content-inner').innerHTML = inner;
       document.getElementById('word-content').classList.remove('hidden');
 
-      // Audio: load + attempt autoplay; the Play button is the reliable path.
+      // Audio: show a button for each available source. Human recording plays
+      // automatically when present; otherwise synthesis auto-plays. The buttons
+      // are the reliable path (autoplay is blocked without a gesture on some
+      // browsers).
       const audio = document.getElementById('audio-player');
-      const playBtn = document.getElementById('btn-play-audio');
-      if (data.wordData.audioUrl) {
-        audio.src = data.wordData.audioUrl;
-        playBtn.style.display = '';
-        audio.play().catch(() => {});
+      const playHuman = document.getElementById('btn-play-human');
+      const playTts = document.getElementById('btn-play-tts');
+
+      currentAudioUrl = data.wordData.audioUrl || null;
+      currentWordText = data.wordData.ttsText || null;
+
+      if (currentAudioUrl) {
+        audio.src = currentAudioUrl;
+        playHuman.classList.remove('hidden');
+        audio.play().catch(() => {}); // default: auto-play human recording
       } else {
         audio.removeAttribute('src');
-        playBtn.style.display = 'none';
+        playHuman.classList.add('hidden');
+      }
+
+      if (currentWordText) {
+        playTts.classList.remove('hidden');
+        if (!currentAudioUrl) speakWord(currentWordText); // auto-play only if no recording
+      } else {
+        playTts.classList.add('hidden');
       }
 
       // Spell input — only for the active player.
@@ -336,10 +400,10 @@
     function renderRoundResult(result) {
       const feed = document.getElementById('results-feed');
       const cls = result.correct ? 'correct' : 'wrong';
-      const icon = result.correct ? '✓' : '✗';
+      const verdict = result.correct ? 'Correct' : 'Incorrect';
       const item = document.createElement('div');
       item.className = `result-item ${cls}`;
-      item.innerHTML = `<strong>${result.playerName}</strong> spelled: ${result.attempt} ${icon}`;
+      item.innerHTML = `<strong>${result.playerName}</strong> spelled "${result.attempt}" &mdash; ${verdict}`;
       feed.appendChild(item);
       if (!result.correct) {
         const reveal = document.createElement('div');
@@ -355,14 +419,16 @@
 
     function renderGameOver(data) {
       showGameUI();
+      stopAudio();
       document.getElementById('spell-section').classList.add('hidden');
       document.getElementById('word-content').classList.add('hidden');
+      document.getElementById('difficulty-label').classList.add('hidden');
       document.getElementById('turn-indicator').className = 'waiting';
       document.getElementById('turn-indicator').textContent = '';
       renderScoreboard();
 
       document.getElementById('game-over-section').classList.remove('hidden');
-      document.getElementById('winner-name').textContent = `🏆 ${data.winnerName} wins!`;
+      document.getElementById('winner-name').textContent = `${data.winnerName} wins!`;
       if (amHost) document.getElementById('btn-restart').classList.remove('hidden');
     }
 
@@ -379,10 +445,17 @@
     document.getElementById('spell-input').addEventListener('keypress', (e) => {
       if (e.key === 'Enter') document.getElementById('btn-submit').click();
     });
-    document.getElementById('btn-play-audio').addEventListener('click', () => {
+    document.getElementById('btn-play-human').addEventListener('click', () => {
       const audio = document.getElementById('audio-player');
+      if (!currentAudioUrl) return;
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
       audio.currentTime = 0;
       audio.play().catch(() => {});
+    });
+    document.getElementById('btn-play-tts').addEventListener('click', () => {
+      const audio = document.getElementById('audio-player');
+      audio.pause();
+      if (currentWordText) speakWord(currentWordText);
     });
     document.getElementById('btn-restart').addEventListener('click', () => {
       document.getElementById('game-over-section').classList.add('hidden');

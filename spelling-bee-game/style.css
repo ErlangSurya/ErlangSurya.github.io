@@ -1,8 +1,14 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-family: "Varela Round", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
 body {
-  font-family: sans-serif;
-  background: #1a1a2e;
-  color: #eee;
+  background: #fff;
+  color: #000;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -10,62 +16,115 @@ body {
 }
 .container { max-width: 700px; width: 100%; }
 
-h1 { text-align: center; margin-bottom: 20px; font-size: 2em; }
-h2 { margin-bottom: 15px; }
+h1 { text-align: center; margin-bottom: 24px; font-size: 2.4em; text-decoration: underline; }
+h2 { margin-bottom: 16px; }
 h3 { margin-bottom: 10px; }
-label { font-weight: bold; display: block; margin-bottom: 5px; }
+label { font-weight: bold; display: block; margin-bottom: 6px; }
 
 input, select, textarea {
-  width: 100%; padding: 10px; font-size: 1rem;
-  border: 1px solid #444; border-radius: 5px;
-  background: #16213e; color: #eee; font-family: monospace;
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  font-family: "Varela Round", sans-serif;
+  border: 2px solid #000;
+  border-radius: 6px;
+  background: #fff;
+  color: #000;
 }
-button {
-  padding: 10px 20px; font-size: 1rem; cursor: pointer;
-  border: none; border-radius: 5px; background: #0f3460; color: #eee;
-  transition: background 0.2s;
-}
-button:hover { background: #1a5276; }
-button:disabled { background: #333; cursor: not-allowed; }
+textarea { font-family: monospace; }
 
-.panel { background: #16213e; border: 1px solid #333; border-radius: 8px; padding: 20px; margin-bottom: 15px; }
+button {
+  font-family: "Varela Round", sans-serif;
+  font-size: 1rem;
+  padding: 10px 22px;
+  cursor: pointer;
+  background: #fff;
+  color: #000;
+  border: 2px solid #000;
+  border-radius: 6px;
+  box-shadow: 2px 2px black;
+}
+button:active {
+  box-shadow: none;
+  transform: translate(2px, 2px);
+}
+button:disabled {
+  color: #999;
+  border-color: #999;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.panel {
+  background: #fff;
+  border: 2px solid #000;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
 .hidden { display: none; }
-.muted { color: #aaa; font-style: italic; }
+.muted { color: #666; font-style: italic; }
 
 /* Lobby */
 .lobby-setup { text-align: center; }
 .lobby-setup label { text-align: left; }
-.lobby-setup select, .lobby-setup input { margin-bottom: 15px; }
+.lobby-setup select, .lobby-setup input { margin-bottom: 16px; }
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: normal;
+  margin-bottom: 16px;
+}
+.checkbox-label input { width: auto; margin: 0; }
 
-.player-panel { background: #0f3460; border-radius: 5px; padding: 15px; margin-bottom: 10px; }
+.player-panel {
+  border: 2px solid #000;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 12px;
+}
 .player-panel input, .player-panel textarea { margin-bottom: 10px; }
 .player-panel .row { display: flex; gap: 8px; margin-bottom: 10px; }
 .player-panel .row button { white-space: nowrap; }
-.player-panel.connected { border: 2px solid #27ae60; }
-.player-panel .status { font-size: 0.85em; color: #aaa; }
+.player-panel.connected { border-width: 3px; }
+.player-panel .status { font-size: 0.85em; color: #666; }
 
 .joiner-section { text-align: center; }
 .joiner-section textarea { margin: 10px 0; }
 
-#host-status { margin-top: 15px; text-align: center; color: #aaa; }
-#btn-start-game { margin-top: 15px; width: 100%; font-size: 1.2em; background: #27ae60; }
-#btn-start-game:hover { background: #2ecc71; }
+#host-status { margin-top: 16px; text-align: center; color: #666; }
+#btn-start-game { margin-top: 16px; width: 100%; font-size: 1.2em; }
 
 /* Game view */
 .scoreboard { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
-.scoreboard .player-chip { padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.9em; }
-.scoreboard .player-chip.alive { background: #27ae60; color: #fff; }
-.scoreboard .player-chip.eliminated { background: #555; color: #999; text-decoration: line-through; }
-.scoreboard .player-chip.active-turn { outline: 3px solid #f1c40f; outline-offset: 2px; }
+.scoreboard .player-chip {
+  padding: 8px 16px;
+  border: 2px solid #000;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9em;
+  background: #fff;
+  color: #000;
+}
+.scoreboard .player-chip.eliminated { color: #999; border-color: #999; text-decoration: line-through; }
+.scoreboard .player-chip.active-turn { background: #000; color: #fff; }
 
 .word-area { text-align: center; }
 #turn-indicator { font-size: 1.3em; font-weight: bold; margin-bottom: 15px; }
-.audio-controls { margin: 15px 0; }
-.audio-controls button { font-size: 1.1em; background: #8e44ad; }
-.audio-controls button:hover { background: #9b59b6; }
+#difficulty-label {
+  border: 2px solid #000;
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.85em;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+#difficulty-label:not(.hidden) { display: inline-block; }
+.audio-controls { margin: 15px 0; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 .word-area audio { display: none; }
 .word-area .meaning { margin-bottom: 12px; text-align: left; }
-.word-area .meaning strong { display: block; margin-bottom: 4px; font-style: italic; color: #aaa; }
+.word-area .meaning strong { display: block; margin-bottom: 4px; font-style: italic; color: #666; }
 .word-area ol { padding-left: 20px; }
 .word-area li { margin-bottom: 4px; line-height: 1.4; }
 
@@ -74,13 +133,13 @@ button:disabled { background: #333; cursor: not-allowed; }
 .spell-input button { min-width: 100px; }
 
 .results-feed { max-height: 220px; overflow-y: auto; }
-.results-feed .result-item { padding: 10px; border-bottom: 1px solid #333; }
-.results-feed .result-item.correct { border-left: 4px solid #27ae60; }
-.results-feed .result-item.wrong { border-left: 4px solid #e74c3c; }
-.results-feed .reveal { padding-left: 30px; color: #e74c3c; }
+.results-feed .result-item { padding: 10px; border-bottom: 1px solid #ccc; }
+.results-feed .result-item.correct { border-left: 4px solid #000; }
+.results-feed .result-item.wrong { border-left: 4px solid #999; }
+.results-feed .reveal { padding-left: 30px; color: #666; }
 
 .game-over { text-align: center; padding: 30px; }
-.game-over .winner-name { font-size: 2em; color: #f1c40f; margin: 15px 0; }
+.game-over .winner-name { font-size: 2em; margin: 15px 0; }
 #btn-restart { margin-top: 10px; }
 
-.waiting { text-align: center; color: #aaa; font-style: italic; padding: 40px; }
+.waiting { text-align: center; color: #666; font-style: italic; padding: 40px; }

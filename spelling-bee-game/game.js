@@ -3,6 +3,7 @@
 // Clients render purely from broadcast messages. All player IDs are strings.
 const Game = (() => {
   let words = null;
+  let wordPackFile = 'words.json';
   let state = 'LOBBY'; // LOBBY | PLAYING | ROUND_ACTIVE | ROUND_RESULT | GAME_OVER
   let isHost = false;
 
@@ -15,6 +16,13 @@ const Game = (() => {
   let currentActiveId = null; // whose turn — synced to clients via new_round
   let currentWord = null;     // host only: the actual answer for this round
 
+  // Difficulty is fixed per round-robin cycle so everyone in a pass faces the
+  // same difficulty (different words). A new cycle = a fresh random difficulty.
+  let currentDifficulty = null;
+  let turnTakenThisCycle = new Set(); // player ids that already played this cycle
+  let showDifficulty = false; // whether to reveal the difficulty level to players
+  let categorized = true;     // false for flat/uncategorized word packs
+
   // UI callbacks
   let cb = {};
   // WebRTC senders
@@ -25,10 +33,28 @@ const Game = (() => {
 
   async function loadWords() {
     if (words) return words;
-    const res = await fetch('words.json');
-    words = await res.json();
+    const res = await fetch(wordPackFile);
+    const raw = await res.json();
+    // Accept either a categorized object { easy:[], medium:[], hard:[] } or a
+    // flat array of words (uncategorized pack). A single-bucket object is also
+    // treated as uncategorized since there's no meaningful difficulty to show.
+    if (Array.isArray(raw)) {
+      words = { all: raw };
+      categorized = false;
+    } else {
+      words = raw;
+      categorized = Object.keys(raw).length > 1;
+    }
     return words;
   }
+
+  function setWordPack(file) {
+    if (file === wordPackFile) return;
+    wordPackFile = file;
+    words = null; // force reload of the newly selected pack
+  }
+
+  function setShowDifficulty(v) { showDifficulty = !!v; }
 
   function init(options) {
     isHost = options.isHost;
@@ -46,6 +72,12 @@ const Game = (() => {
     allPlayers = playerList.map(p => ({ id: String(p.id), name: p.name }));
     alive = allPlayers.map(p => p.id);
     turnPointer = 0;
+    resetCycle();
+  }
+
+  function resetCycle() {
+    currentDifficulty = null;
+    turnTakenThisCycle = new Set();
   }
 
   function setState(s) { state = s; cb.onStateChange(state); }
@@ -57,8 +89,9 @@ const Game = (() => {
     await loadWords();
     alive = allPlayers.map(p => p.id);
     turnPointer = 0;
+    resetCycle();
     setState('PLAYING');
-    broadcast({ type: 'start_game', players: allPlayers });
+    broadcast({ type: 'start_game', players: allPlayers, showDifficulty });
     await nextRound();
   }
 
@@ -66,25 +99,46 @@ const Game = (() => {
     if (!isHost) return;
     alive = allPlayers.map(p => p.id);
     turnPointer = 0;
+    resetCycle();
     setState('PLAYING');
-    broadcast({ type: 'restart_game', players: allPlayers });
+    broadcast({ type: 'restart_game', players: allPlayers, showDifficulty });
     nextRound();
   }
 
   // ===== HOST: round logic =====
 
-  async function pickWord() {
-    const difficulties = Object.keys(words);
-    const MAX_ATTEMPTS = 10;
+  function randomDifficulty() {
+    const ds = Object.keys(words);
+    return ds[Math.floor(Math.random() * ds.length)];
+  }
+
+  // Try to find a usable word (has audio + definitions) within one difficulty.
+  async function pickWordFrom(difficulty) {
+    const list = words[difficulty] || [];
+    if (list.length === 0) return null;
     const tried = new Set();
+    const MAX_ATTEMPTS = 10;
     for (let i = 0; i < MAX_ATTEMPTS; i++) {
-      const diff = difficulties[Math.floor(Math.random() * difficulties.length)];
-      const list = words[diff];
       const word = list[Math.floor(Math.random() * list.length)];
       if (tried.has(word)) continue;
       tried.add(word);
+      // fetchWordData handles the definition fallback (Datamuse) and audio
+      // synthesis flag internally; it returns null only when NO definition
+      // exists anywhere, in which case we try another word.
       const data = await DictionaryAPI.fetchWordData(word);
-      if (data && data.audioUrl && data.meanings.length > 0) return data;
+      if (data && data.meanings.length > 0) return data;
+    }
+    return null;
+  }
+
+  // Pick from the requested difficulty; fall back to any difficulty only if
+  // that difficulty can't yield a usable word, so the game never stalls.
+  async function pickWord(difficulty) {
+    let data = await pickWordFrom(difficulty);
+    if (data) return data;
+    for (let i = 0; i < 10; i++) {
+      data = await pickWordFrom(randomDifficulty());
+      if (data) return data;
     }
     return null;
   }
@@ -93,7 +147,17 @@ const Game = (() => {
     if (!isHost) return;
     if (alive.length <= 1) return checkWinner();
 
-    const wordData = await pickWord();
+    currentActiveId = alive[turnPointer];
+
+    // New cycle when the very first round runs, or when we return to a player
+    // who has already played in the current cycle (a full pass completed).
+    if (currentDifficulty === null || turnTakenThisCycle.has(currentActiveId)) {
+      currentDifficulty = randomDifficulty();
+      turnTakenThisCycle = new Set();
+    }
+    turnTakenThisCycle.add(currentActiveId);
+
+    const wordData = await pickWord(currentDifficulty);
     if (!wordData) {
       // Extremely unlikely; skip turn and retry.
       setTimeout(() => nextRound(), 500);
@@ -101,12 +165,21 @@ const Game = (() => {
     }
 
     currentWord = wordData;
-    currentActiveId = alive[turnPointer];
     const activePlayer = allPlayers.find(p => p.id === currentActiveId);
+
+    // Audio: send the human recording URL when available, and always include
+    // the text so clients can also speak it via synthesis. (ttsText is the
+    // answer — used ONLY for audio, never displayed.)
+    const wd = {
+      meanings: wordData.meanings,
+      audioUrl: wordData.audioUrl, // may be null
+      ttsText: wordData.word
+    };
 
     const payload = {
       type: 'new_round',
-      wordData: { meanings: wordData.meanings, audioUrl: wordData.audioUrl },
+      wordData: wd,
+      difficulty: categorized ? currentDifficulty : null,
       activePlayerId: currentActiveId,
       activePlayerName: activePlayer ? activePlayer.name : 'Player'
     };
@@ -176,6 +249,7 @@ const Game = (() => {
         alive = allPlayers.map(p => p.id);
         turnPointer = 0;
         currentActiveId = null;
+        showDifficulty = !!data.showDifficulty;
         setState('PLAYING');
         break;
 
@@ -217,9 +291,10 @@ const Game = (() => {
   function getAllPlayers() { return allPlayers; }
   function getActiveId() { return currentActiveId; }
   function isPlayerAlive(id) { return alive.includes(String(id)); }
+  function getShowDifficulty() { return showDifficulty; }
 
   return {
-    loadWords, init, setPlayers,
+    loadWords, setWordPack, setShowDifficulty, getShowDifficulty, init, setPlayers,
     startGame, restart, submitAttempt, handleSubmission, handleMessage,
     getState, getAllPlayers, getActiveId, isPlayerAlive
   };
