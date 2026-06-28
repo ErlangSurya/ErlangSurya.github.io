@@ -140,6 +140,7 @@ button:disabled {
 
 .game-over { text-align: center; padding: 30px; }
 .game-over .winner-name { font-size: 2em; margin: 15px 0; }
+.game-over .score-summary { font-size: 1.1em; color: #444; margin-bottom: 15px; }
 #btn-restart { margin-top: 10px; }
 
 .waiting { text-align: center; color: #666; font-style: italic; padding: 40px; }

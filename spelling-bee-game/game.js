@@ -16,6 +16,11 @@ const Game = (() => {
   let currentActiveId = null; // whose turn — synced to clients via new_round
   let currentWord = null;     // host only: the actual answer for this round
 
+  // Cross-session continuity (host-authoritative): win tallies persist across
+  // "Play Again", and the previous session's winner starts the next one.
+  let wins = {};              // playerId -> number of session wins
+  let lastWinnerId = null;
+
   // Difficulty is fixed per round-robin cycle so everyone in a pass faces the
   // same difficulty (different words). A new cycle = a fresh random difficulty.
   let currentDifficulty = null;
@@ -72,6 +77,10 @@ const Game = (() => {
     allPlayers = playerList.map(p => ({ id: String(p.id), name: p.name }));
     alive = allPlayers.map(p => p.id);
     turnPointer = 0;
+    // Fresh multi-session run: reset win tallies and winner history.
+    wins = {};
+    allPlayers.forEach(p => { wins[p.id] = 0; });
+    lastWinnerId = null;
     resetCycle();
   }
 
@@ -98,7 +107,9 @@ const Game = (() => {
   function restart() {
     if (!isHost) return;
     alive = allPlayers.map(p => p.id);
-    turnPointer = 0;
+    // The previous session's winner starts the new session.
+    const startIdx = lastWinnerId ? alive.indexOf(lastWinnerId) : -1;
+    turnPointer = startIdx >= 0 ? startIdx : 0;
     resetCycle();
     setState('PLAYING');
     broadcast({ type: 'restart_game', players: allPlayers, showDifficulty });
@@ -229,11 +240,16 @@ const Game = (() => {
     if (!isHost) return;
     const winnerId = alive[0] || null;
     const winner = allPlayers.find(p => p.id === winnerId);
+    if (winnerId) {
+      wins[winnerId] = (wins[winnerId] || 0) + 1;
+      lastWinnerId = winnerId;
+    }
     setState('GAME_OVER');
     const payload = {
       type: 'game_over',
       winnerId,
-      winnerName: winner ? winner.name : 'Nobody'
+      winnerName: winner ? winner.name : 'Nobody',
+      scores: allPlayers.map(p => ({ id: p.id, name: p.name, wins: wins[p.id] || 0 }))
     };
     broadcast(payload);
     cb.onGameOver(payload);

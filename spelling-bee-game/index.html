@@ -92,6 +92,7 @@
       <div id="game-over-section" class="panel game-over hidden">
         <h2>Game Over!</h2>
         <div class="winner-name" id="winner-name"></div>
+        <div class="score-summary" id="score-summary"></div>
         <button id="btn-restart" class="hidden">Play Again</button>
       </div>
     </div>
@@ -114,19 +115,81 @@
     let currentAudioUrl = null;  // human recording URL for this round (or null)
     let currentWordText = null;  // text spoken via speech synthesis this round
 
-    // Browser speech synthesis (always available pronunciation path).
-    function speakWord(text) {
-      if (!('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'en-US';
-      u.rate = 0.85;
-      window.speechSynthesis.speak(u);
-    }
+    // ---- Robust speech synthesis ----
+    // Chromium-based browsers (including Brave) expose ONE global speech engine
+    // shared across every tab. It can "wedge" — going silent everywhere until
+    // the whole browser is restarted — when utterances are interrupted badly:
+    //   • cancel() called immediately before speak() (a race that jams the queue)
+    //   • cancel() called while the engine is idle
+    //   • the page reloading/navigating while an utterance is still queued
+    //     (very common while developing against the local version)
+    // Regular <audio> is unaffected because it doesn't use the OS speech daemon.
+    // The guards below keep the engine healthy.
+    const Speech = (() => {
+      const supported = 'speechSynthesis' in window;
+      const synth = supported ? window.speechSynthesis : null;
+      let watchdog = null;
+
+      function stopWatchdog() {
+        if (watchdog) { clearInterval(watchdog); watchdog = null; }
+      }
+      function startWatchdog() {
+        stopWatchdog();
+        // Chromium pauses the engine after ~15s and can stall; periodically
+        // resume() to keep it alive and to recover a stalled engine.
+        watchdog = setInterval(() => {
+          if (synth.speaking) synth.resume();
+          else stopWatchdog();
+        }, 5000);
+      }
+
+      function speak(text) {
+        if (!supported || !text) return;
+        const utter = () => {
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = 'en-US';
+          u.rate = 0.85;
+          u.onend = stopWatchdog;
+          u.onerror = stopWatchdog;
+          synth.speak(u);
+          synth.resume();   // immediate unstick
+          startWatchdog();
+        };
+        if (synth.speaking || synth.pending) {
+          // Something is in flight: cancel, then let it settle on the next tick
+          // before speaking, to avoid the cancel()->speak() race that jams the
+          // engine. (When idle we speak immediately to keep user-gesture scope.)
+          synth.cancel();
+          setTimeout(utter, 0);
+        } else {
+          utter();
+        }
+      }
+
+      function stop() {
+        if (!supported) return;
+        stopWatchdog();
+        if (synth.speaking || synth.pending) synth.cancel(); // never cancel while idle
+      }
+
+      if (supported) {
+        // Don't leave a queued/active utterance behind on reload/navigation —
+        // the leading cause of the engine wedging during local development.
+        window.addEventListener('pagehide', stop);
+        window.addEventListener('beforeunload', stop);
+        // Warm up the voice list (some engines populate it lazily).
+        synth.getVoices();
+        synth.onvoiceschanged = () => synth.getVoices();
+      }
+
+      return { speak, stop };
+    })();
+
+    function speakWord(text) { Speech.speak(text); }
 
     // Stop any playing audio and clear the round's audio state.
     function stopAudio() {
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      Speech.stop();
       const a = document.getElementById('audio-player');
       if (a) { a.pause(); a.removeAttribute('src'); }
       currentAudioUrl = null;
@@ -429,6 +492,10 @@
 
       document.getElementById('game-over-section').classList.remove('hidden');
       document.getElementById('winner-name').textContent = `${data.winnerName} wins!`;
+      const scores = data.scores || [];
+      document.getElementById('score-summary').textContent = scores
+        .map(s => `${s.name}: ${s.wins} ${s.wins === 1 ? 'win' : 'wins'}`)
+        .join(', ');
       if (amHost) document.getElementById('btn-restart').classList.remove('hidden');
     }
 
